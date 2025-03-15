@@ -80,6 +80,18 @@ public:
         inOrden(root);
         cout << endl;
     }
+    //Busca si un elemento existe en el arbol
+    bool SearchElement(Node* node, const T& element) {
+        if (node == nullptr){return false;}
+
+        if (element == node->getElement()){ return true; }
+        else if (element < node->getElement()) {
+            return SearchElement(node->getLeft(), element);
+        }
+        else {
+            return SearchElement(node->getRight(), element);
+        } 
+    }
 };
 
 //Funcion de prueba
