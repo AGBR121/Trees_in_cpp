@@ -62,6 +62,14 @@ private:
         }
     }
 
+    // Función para encontrar el nodo mínimo en un subárbol
+    Node* findMin(Node* node) {
+        while (node->getLeft() != nullptr) {
+            node = node->getLeft();
+        }
+        return node;
+    }
+
 public:
     //Constructores 
     BinaryTree(){ root = nullptr ; }
