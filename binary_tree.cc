@@ -5,18 +5,15 @@
 using namespace std;
 
 template<typename T>
-class BinaryTree {
-public:
-    //Clase nodo
-    class Node {
+class BST {
     private:
-        T element_; //Guarda el elemento
-        //Apuntará a otros dos nodos
-        Node* left_; 
+    class Node{
+        private:
+        T element_;
+        Node* left_;
         Node* right_;
 
-    public:
-    //Constructores
+        public:
         Node(){
             element_ = T();
             left_ = nullptr;
@@ -28,87 +25,103 @@ public:
             left_ = nullptr;
             right_ = nullptr;
         }
-    // getter y setter
-    T getElement() const { return element_; }
-    void setElement(const T& element) { element_ = element; }
 
-    Node* getLeft() const { return left_; }
-    void setLeft(Node* left) { left_ = left; }
+        //Getter and setter of the Node class
+        T getElement() const { return element_; }
+        void setElement(const T& element) { element_ = element; }
 
-    Node* getRight() const { return right_; }
-    void setRight(Node* right) { right_ = right; }
+        Node* getLeft() const { return left_; }
+        void setLeft(Node* left) { left_ = left; }
+
+        Node* getRight() const { return right_; }
+        void setRight(Node* right) { right_ = right; }
     };
 
-private:
     Node* root;
-    //Funcion recursiva para insertar un dato en el arbol
-    Node* insertData(Node* node, const T& element) {
-        if (node == nullptr) { return new Node(element); }
-    
-        if (element < node->getElement()) {
-            node->setLeft(insertData(node->getLeft(), element));
-        } else if (element > node->getElement()) {
-            node->setRight(insertData(node->getRight(), element));
+
+
+    Node* insert(Node* node, T value){
+        if(!node){ return new Node(value); } //If the value isn't in the tree, we add it
+
+        if(node->getElement() == value){return node;} //Else, we don't add it
+
+        if (value < node->getElement()) {
+            node->setLeft(insert(node->getLeft(), value));
+        } else if (value > node->getElement()) {
+            node->setRight(insert(node->getRight(), value));
         }
-        return node;
+        return node; //Return the node and we don't change the tree
     }
 
-    //Funcion Recursiva para revisar todo el arbol
-    void inOrden(Node* node) {
-        if (node != nullptr) {
-            inOrden(node->getLeft());
+    //Left-Root-Right
+    void inorder(Node* node){
+        if(node != nullptr){
+            inorder(node->getLeft());
+            cout << node->getElement()<< " ";
+            inorder(node->getRight());
+        }
+    }
+
+    //Root-Left-Right
+    void preorder(Node* node){
+        if(node != nullptr){
+            cout << node->getElement() <<" ";
+            preorder(node->getLeft());
+            preorder(node->getRight());
+        }
+    }
+
+    //Left-Right-Root
+    void postorder(Node* node){
+        if(node != nullptr){
+            postorder(node->getLeft());
+            postorder(node->getRight());
             cout << node->getElement() << " ";
-            inOrden(node->getRight());
         }
     }
 
-    // Función para encontrar el nodo mínimo en un subárbol
-    Node* findMin(Node* node) {
-        while (node->getLeft() != nullptr) {
-            node = node->getLeft();
-        }
-        return node;
-    }
-
-public:
-    //Constructores 
-    BinaryTree(){ root = nullptr ; }
-
-    BinaryTree(const T& element) {
-        root = new Node(element);
-    }
-
-    //Inserta un elemento en el arbol
-    void insert(const T& element) {
-        root = insertData(root, element);
-    }
-
-    //Imprime el arbol ordenadamente
-    void Orden() {
-        inOrden(root);
-        cout << endl;
-    }
-    //Busca si un elemento existe en el arbol
-    bool SearchElement(Node* node, const T& element) {
+    //Return true or false if the element is in the tree
+    bool find(Node* node, const T& element) {
         if (node == nullptr){return false;}
 
         if (element == node->getElement()){ return true; }
         else if (element < node->getElement()) {
-            return SearchElement(node->getLeft(), element);
+            return find(node->getLeft(), element);
         }
         else {
-            return SearchElement(node->getRight(), element);
+            return find(node->getRight(), element);
         } 
     }
+
+    public:
+
+    //Constructors
+    BST(){ root = nullptr; }
+    BST(const T& element){ root = new Node(element);}
+
+    void insert(const T& element){ root = insert(root, element);}
+
+    void inorder() { inorder(root); }
+
+    void preorder() { preorder(root); }
+
+    void postorder() { postorder(root); }
+
+    bool find(const T& element){ find(root, element); }
+
 };
 
-//Funcion de prueba
 void Prueba() {
-    BinaryTree<int> tree;
-    for (int i = 1; i <= 100; i++) {
+    BST<int> tree;
+    for (int i = 1; i <= 10; i++) {
         tree.insert(rand() % 100);
     }
-    tree.Orden();
+    tree.inorder();
+    cout << endl;
+    tree.preorder();
+    cout << endl;
+    tree.postorder();
+    cout << endl;
 }
 
 int main() {
