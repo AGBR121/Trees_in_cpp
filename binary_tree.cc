@@ -37,7 +37,11 @@ class BST {
         void setRight(Node* right) { right_ = right; }
     };
 
+    private:
+
     Node* root;
+
+    unsigned int size_;
 
 
     Node* insert(Node* node, T value){
@@ -93,13 +97,49 @@ class BST {
         } 
     }
 
+    //Find the smallest element in the tree
+    Node* findMin(Node* node) {
+        assert(node != nullptr);
+        while (node->left_) {
+            node = node->left_;
+        }
+        return node;
+    }
+
+    Node* remove(Node* node, const T& value) {
+        assert(size_ != 0);
+
+        if (!node){ return nullptr; }
+    
+        if (value < node->element_){
+            node->left_ = remove(node->left_, value);
+        } else if (value > node->element_){
+            node->right_ = remove(node->right_, value);
+        } else {
+            //If the node has 1 child
+            if (!node->left_ || !node->right_) { 
+                Node* temp = node->left_ ? node->left_ : node->right_;
+                delete node;
+                return temp;
+            }
+            //Find the minimum successor of the right subtree
+            Node* minNode = findMin(node->right_);
+            //Copy its value
+            node->element_ = minNode->element_;
+            //Remove the duplicate
+            node->right_ = remove(node->right_, minNode->element_);
+        }
+        return node;
+    }
+
+    
     public:
-
+    
     //Constructors
-    BST(){ root = nullptr; }
-    BST(const T& element){ root = new Node(element);}
+    BST(){ root = nullptr; size_ = 0; }
+    BST(const T& element){ root = new Node(element); size_ = 1;}
 
-    void insert(const T& element){ root = insert(root, element);}
+    void insert(const T& element){ root = insert(root, element); size_++; }
 
     void inorder() { inorder(root); }
 
@@ -109,12 +149,16 @@ class BST {
 
     bool find(const T& element){ find(root, element); }
 
+    void remove(const T& value) { root = remove(root, value); size_--; }
+    
+    unsigned int size(){ return size_; }
+
 };
 
 void Prueba() {
     BST<int> tree;
-    for (int i = 1; i <= 10; i++) {
-        tree.insert(rand() % 100);
+    for (int i = 1; i <= 15; i++) {
+        tree.insert(rand() % 10);
     }
     tree.inorder();
     cout << endl;
@@ -122,6 +166,7 @@ void Prueba() {
     cout << endl;
     tree.postorder();
     cout << endl;
+    cout << tree.size() << endl;
 }
 
 int main() {
