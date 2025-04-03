@@ -39,7 +39,7 @@ class BST {
 
     private:
 
-    Node* root;
+    Node* root_;
 
     unsigned int size_;
 
@@ -100,8 +100,8 @@ class BST {
     //Find the smallest element in the tree
     Node* findMin(Node* node) {
         assert(node != nullptr);
-        while (node->left_) {
-            node = node->left_;
+        while (node->getLeft()) {
+            node = node->getLeft();
         }
         return node;
     }
@@ -111,23 +111,23 @@ class BST {
 
         if (!node){ return nullptr; }
     
-        if (value < node->element_){
-            node->left_ = remove(node->left_, value);
-        } else if (value > node->element_){
-            node->right_ = remove(node->right_, value);
+        if (value < node->getElement()){
+            node->setLeft(remove(node->getLeft(), value));
+        } else if (value > node->getElement()){
+            node->setRight(remove(node->getRight(), value)); 
         } else {
             //If the node has 1 child
-            if (!node->left_ || !node->right_) { 
-                Node* temp = node->left_ ? node->left_ : node->right_;
+            if (!node->getLeft() || !node->getRight()) { 
+                Node* temp = node->getLeft() ? node->getLeft() : node->getRight();
                 delete node;
                 return temp;
             }
             //Find the minimum successor of the right subtree
-            Node* minNode = findMin(node->right_);
+            Node* minNode = findMin(node->getRight());
             //Copy its value
-            node->element_ = minNode->element_;
+            node->setElement(minNode->getElement());
             //Remove the duplicate
-            node->right_ = remove(node->right_, minNode->element_);
+            node->setRight(remove(node->getRight(), minNode->getElement()));
         }
         return node;
     }
@@ -136,36 +136,61 @@ class BST {
     public:
     
     //Constructors
-    BST(){ root = nullptr; size_ = 0; }
-    BST(const T& element){ root = new Node(element); size_ = 1;}
+    BST(){ root_ = nullptr; size_ = 0; }
+    BST(const T& element){ root_ = new Node(element); size_ = 1;}
 
-    void insert(const T& element){ root = insert(root, element); size_++; }
+    void insert(const T& element){ 
+        if (!find(element)) { //If the element exist, don't add it
+            root_ = insert(root_, element); 
+            size_++; 
+        }
+    }
 
-    void inorder() { inorder(root); }
+    void inorder() { inorder(root_); }
 
-    void preorder() { preorder(root); }
+    void preorder() { preorder(root_); }
 
-    void postorder() { postorder(root); }
+    void postorder() { postorder(root_); }
 
-    bool find(const T& element){ find(root, element); }
+    bool find(const T& element){ return find(root_, element); }
 
-    void remove(const T& value) { root = remove(root, value); size_--; }
+    void remove(const T& value) { 
+        assert(find(root_, value)); // If the element exist, remove it
+        root_ = remove(root_, value);
+        size_--;
+    }
     
     unsigned int size(){ return size_; }
+
+    Node* root(){ return root_; }
 
 };
 
 void Prueba() {
     BST<int> tree;
-    for (int i = 1; i <= 15; i++) {
-        tree.insert(rand() % 10);
+    srand(time(nullptr)); 
+    for (int i = 1; i <= 10; i++) {
+        tree.insert(rand() % 50);
+        tree.insert(i);
     }
+    cout << "Root: " << tree.root()->getElement() << endl;
+    cout << "Inorder:" << endl ;
     tree.inorder();
     cout << endl;
+    cout << "Preorder:" << endl ;
     tree.preorder();
     cout << endl;
+    cout << "Postorder:" << endl ;
     tree.postorder();
     cout << endl;
+    cout << "Size:" << endl ;
+    cout << tree.size() << endl;
+    tree.remove(2);
+    cout << "Delete number 2" << endl ;
+    cout << "Inorder:" << endl ;
+    tree.inorder();
+    cout << endl;
+    cout << "Size:" << endl ;
     cout << tree.size() << endl;
 }
 
