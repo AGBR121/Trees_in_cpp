@@ -60,6 +60,7 @@ class Treap {
     }
 
     void inorder(Node* node) {
+        assert(root_ != nullptr);
         if (node) {
             inorder(node->getLeft());
             cout << node->getElement() << " ";
@@ -68,6 +69,7 @@ class Treap {
     }
 
     void preorder(Node* node) {
+        assert(root_ != nullptr);
         if (node) {
             cout << node->getElement() << " ";
             preorder(node->getLeft());
@@ -76,6 +78,7 @@ class Treap {
     }
 
     void postorder(Node* node) {
+        assert(root_ != nullptr);
         if (node) {
             postorder(node->getLeft());
             postorder(node->getRight());

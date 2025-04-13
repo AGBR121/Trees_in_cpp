@@ -59,6 +59,7 @@ class BST {
 
     //Left-Root-Right
     void inorder(Node* node){
+        assert(root_ != nullptr);
         if(node != nullptr){
             inorder(node->getLeft());
             cout << node->getElement()<< " ";
@@ -68,6 +69,7 @@ class BST {
 
     //Root-Left-Right
     void preorder(Node* node){
+        assert(root_ != nullptr);
         if(node != nullptr){
             cout << node->getElement() <<" ";
             preorder(node->getLeft());
@@ -77,6 +79,7 @@ class BST {
 
     //Left-Right-Root
     void postorder(Node* node){
+        assert(root_ != nullptr);
         if(node != nullptr){
             postorder(node->getLeft());
             postorder(node->getRight());
