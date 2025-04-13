@@ -49,94 +49,99 @@ private:
     Node* root_;
     unsigned int size_ = 0;
 
-    void leftRotate(Node* x) {
-        Node* y = x->getRight();
-        x->setRight(y->getLeft());
-        if (y->getLeft() != nullptr) {
-            y->getLeft()->setParent(x);
+    void leftRotate(Node* pivot) {
+        Node* child = pivot->getRight();
+        pivot->setRight(child->getLeft());
+        if (child->getLeft()) {
+            child->getLeft()->setParent(pivot);
         }
-        y->setParent(x->getParent());
-        if (x->getParent() == nullptr) {
-            root_ = y;
-        } else if (x == x->getParent()->getLeft()) {
-            x->getParent()->setLeft(y);
+        child->setParent(pivot->getParent());
+
+        if (!pivot->getParent()) {
+            root_ = child;
+        } else if (pivot == pivot->getParent()->getLeft()) {
+            pivot->getParent()->setLeft(child);
         } else {
-            x->getParent()->setRight(y);
+            pivot->getParent()->setRight(child);
         }
-        y->setLeft(x);
-        x->setParent(y);
+
+        child->setLeft(pivot);
+        pivot->setParent(child);
     }
 
-    void rightRotate(Node* x) {
-        Node* y = x->getLeft();
-        x->setLeft(y->getRight());
-        if (y->getRight() != nullptr) {
-            y->getRight()->setParent(x);
+    void rightRotate(Node* pivot) {
+        Node* child = pivot->getLeft();
+        pivot->setLeft(child->getRight());
+        if (child->getRight()) {
+            child->getRight()->setParent(pivot);
         }
-        y->setParent(x->getParent());
-        if (x->getParent() == nullptr) {
-            root_ = y;
-        } else if (x == x->getParent()->getRight()) {
-            x->getParent()->setRight(y);
+        child->setParent(pivot->getParent());
+
+        if (!pivot->getParent()) {
+            root_ = child;
+        } else if (pivot == pivot->getParent()->getRight()) {
+            pivot->getParent()->setRight(child);
         } else {
-            x->getParent()->setLeft(y);
+            pivot->getParent()->setLeft(child);
         }
-        y->setRight(x);
-        x->setParent(y);
+
+        child->setRight(pivot);
+        pivot->setParent(child);
     }
 
-    void fixInsert(Node* z) {
-        while (z->getParent() != nullptr && z->getParent()->isRed()) {
-            Node* parent = z->getParent();
+
+    void fixInsert(Node* node) {
+        while (node->getParent() && node->getParent()->isRed()) {
+            Node* parent = node->getParent();
             Node* grandparent = parent->getParent();
 
             if (parent == grandparent->getLeft()) {
                 Node* uncle = grandparent->getRight();
-                if (uncle != nullptr && uncle->isRed()) {
-                    parent->setColor(0);
-                    uncle->setColor(0);
-                    grandparent->setColor(1);
-                    z = grandparent;
+                if (uncle && uncle->isRed()) {
+                    parent->setColor(false);
+                    uncle->setColor(false);
+                    grandparent->setColor(true);
+                    node = grandparent;
                 } else {
-                    if (z == parent->getRight()) {
-                        z = parent;
-                        leftRotate(z);
+                    if (node == parent->getRight()) {
+                        node = parent;
+                        leftRotate(node);
                     }
-                    z->getParent()->setColor(0);
-                    grandparent->setColor(1);
+                    node->getParent()->setColor(false);
+                    grandparent->setColor(true);
                     rightRotate(grandparent);
                 }
             } else {
                 Node* uncle = grandparent->getLeft();
-                if (uncle != nullptr && uncle->isRed()) {
-                    parent->setColor(0);
-                    uncle->setColor(0);
-                    grandparent->setColor(1);
-                    z = grandparent;
+                if (uncle && uncle->isRed()) {
+                    parent->setColor(false);
+                    uncle->setColor(false);
+                    grandparent->setColor(true);
+                    node = grandparent;
                 } else {
-                    if (z == parent->getLeft()) {
-                        z = parent;
-                        rightRotate(z);
+                    if (node == parent->getLeft()) {
+                        node = parent;
+                        rightRotate(node);
                     }
-                    z->getParent()->setColor(0);
-                    grandparent->setColor(1);
+                    node->getParent()->setColor(false);
+                    grandparent->setColor(true);
                     leftRotate(grandparent);
                 }
             }
         }
-        root_->setColor(0);
+        root_->setColor(false);
     }
 
-    void transplant(Node* u, Node* v) {
-        if (u->getParent() == nullptr) {
-            root_ = v;
-        } else if (u == u->getParent()->getLeft()) {
-            u->getParent()->setLeft(v);
+    void transplant(Node* old_node, Node* new_node) {
+        if (!old_node->getParent()) {
+            root_ = new_node;
+        } else if (old_node == old_node->getParent()->getLeft()) {
+            old_node->getParent()->setLeft(new_node);
         } else {
-            u->getParent()->setRight(v);
+            old_node->getParent()->setRight(new_node);
         }
-        if (v != nullptr) {
-            v->setParent(u->getParent());
+        if (new_node) {
+            new_node->setParent(old_node->getParent());
         }
     }
 
@@ -147,107 +152,111 @@ private:
         return node;
     }
 
-    void fixDelete(Node* x) {
-        while (x != root_ && (x == nullptr || !x->isRed())) {
-            Node* parent = x ? x->getParent() : nullptr;
-            if (parent == nullptr) break;
+    void fixDelete(Node* node) {
+        while (node != root_ && (!node || !node->isRed())) {
+            Node* parent = node ? node->getParent() : nullptr;
+            if (!parent) break;
 
-            if (x == parent->getLeft()) {
-                Node* w = parent->getRight();
-                if (w && w->isRed()) {
-                    w->setColor(0);
-                    parent->setColor(1);
+            if (node == parent->getLeft()) {
+                Node* sibling = parent->getRight();
+                if (sibling && sibling->isRed()) {
+                    sibling->setColor(false);
+                    parent->setColor(true);
                     leftRotate(parent);
-                    w = parent->getRight();
+                    sibling = parent->getRight();
                 }
 
-                if ((w->getLeft() == nullptr || !w->getLeft()->isRed()) &&
-                    (w->getRight() == nullptr || !w->getRight()->isRed())) {
-                    w->setColor(1);
-                    x = parent;
+                if ((!sibling->getLeft() || !sibling->getLeft()->isRed()) &&
+                    (!sibling->getRight() || !sibling->getRight()->isRed())) {
+                    sibling->setColor(true);
+                    node = parent;
                 } else {
-                    if (w->getRight() == nullptr || !w->getRight()->isRed()) {
-                        if (w->getLeft()) w->getLeft()->setColor(0);
-                        w->setColor(1);
-                        rightRotate(w);
-                        w = parent->getRight();
+                    if (!sibling->getRight() || !sibling->getRight()->isRed()) {
+                        if (sibling->getLeft()) sibling->getLeft()->setColor(false);
+                        sibling->setColor(true);
+                        rightRotate(sibling);
+                        sibling = parent->getRight();
                     }
-                    w->setColor(parent->isRed());
-                    parent->setColor(0);
-                    if (w->getRight()) w->getRight()->setColor(0);
+                    sibling->setColor(parent->isRed());
+                    parent->setColor(false);
+                    if (sibling->getRight()) sibling->getRight()->setColor(false);
                     leftRotate(parent);
-                    x = root_;
+                    node = root_;
                 }
             } else {
-                Node* w = parent->getLeft();
-                if (w && w->isRed()) {
-                    w->setColor(0);
-                    parent->setColor(1);
+                Node* sibling = parent->getLeft();
+                if (sibling && sibling->isRed()) {
+                    sibling->setColor(false);
+                    parent->setColor(true);
                     rightRotate(parent);
-                    w = parent->getLeft();
+                    sibling = parent->getLeft();
                 }
 
-                if ((w->getLeft() == nullptr || !w->getLeft()->isRed()) &&
-                    (w->getRight() == nullptr || !w->getRight()->isRed())) {
-                    w->setColor(1);
-                    x = parent;
+                if ((!sibling->getLeft() || !sibling->getLeft()->isRed()) &&
+                    (!sibling->getRight() || !sibling->getRight()->isRed())) {
+                    sibling->setColor(true);
+                    node = parent;
                 } else {
-                    if (w->getLeft() == nullptr || !w->getLeft()->isRed()) {
-                        if (w->getRight()) w->getRight()->setColor(0);
-                        w->setColor(1);
-                        leftRotate(w);
-                        w = parent->getLeft();
+                    if (!sibling->getLeft() || !sibling->getLeft()->isRed()) {
+                        if (sibling->getRight()) sibling->getRight()->setColor(false);
+                        sibling->setColor(true);
+                        leftRotate(sibling);
+                        sibling = parent->getLeft();
                     }
-                    w->setColor(parent->isRed());
-                    parent->setColor(0);
-                    if (w->getLeft()) w->getLeft()->setColor(0);
+                    sibling->setColor(parent->isRed());
+                    parent->setColor(false);
+                    if (sibling->getLeft()) sibling->getLeft()->setColor(false);
                     rightRotate(parent);
-                    x = root_;
+                    node = root_;
                 }
             }
         }
 
-        if (x != nullptr)
-            x->setColor(0);
+        if (node) node->setColor(false);
     }
 
-    void deleteNode(Node* z) {
-        Node* y = z;
-        bool yOriginalColor = y->isRed();
-        Node* x;
-
-        if (z->getLeft() == nullptr) {
-            x = z->getRight();
-            transplant(z, z->getRight());
-        } else if (z->getRight() == nullptr) {
-            x = z->getLeft();
-            transplant(z, z->getLeft());
+    void deleteNode(Node* nodeToDelete) {
+        Node* replacementNode = nodeToDelete;
+        bool wasReplacementNodeRed = replacementNode->isRed();
+        Node* nodeToFix = nullptr;
+    
+        if (nodeToDelete->getLeft() == nullptr) {
+            nodeToFix = nodeToDelete->getRight();
+            transplant(nodeToDelete, nodeToFix);
+        } else if (nodeToDelete->getRight() == nullptr) {
+            nodeToFix = nodeToDelete->getLeft();
+            transplant(nodeToDelete, nodeToFix);
         } else {
-            y = minimum(z->getRight());
-            yOriginalColor = y->isRed();
-            x = y->getRight();
-            if (y->getParent() == z) {
-                if (x != nullptr)
-                    x->setParent(y);
+            replacementNode = minimum(nodeToDelete->getRight());
+            wasReplacementNodeRed = replacementNode->isRed();
+            nodeToFix = replacementNode->getRight();
+    
+            if (replacementNode->getParent() == nodeToDelete) {
+                if (nodeToFix != nullptr) {
+                    nodeToFix->setParent(replacementNode);
+                }
             } else {
-                transplant(y, y->getRight());
-                y->setRight(z->getRight());
-                if (y->getRight())
-                    y->getRight()->setParent(y);
+                transplant(replacementNode, replacementNode->getRight());
+                replacementNode->setRight(nodeToDelete->getRight());
+                if (replacementNode->getRight()) {
+                    replacementNode->getRight()->setParent(replacementNode);
+                }
             }
-            transplant(z, y);
-            y->setLeft(z->getLeft());
-            if (y->getLeft())
-                y->getLeft()->setParent(y);
-            y->setColor(z->isRed());
+    
+            transplant(nodeToDelete, replacementNode);
+            replacementNode->setLeft(nodeToDelete->getLeft());
+            if (replacementNode->getLeft()) {
+                replacementNode->getLeft()->setParent(replacementNode);
+            }
+            replacementNode->setColor(nodeToDelete->isRed());
         }
-
-        delete z;
-
-        if (!yOriginalColor && x != nullptr) {
-            fixDelete(x);
+    
+        delete nodeToDelete;
+    
+        if (!wasReplacementNodeRed && nodeToFix != nullptr) {
+            fixDelete(nodeToFix);
         }
-    }
+    }    
 
     void inorder(Node* node) const {
         assert(root_ != nullptr);
@@ -282,49 +291,50 @@ private:
         return element < node->getElement() ? find(node->getLeft(), element) : find(node->getRight(), element);
     }
 
-    void delete_node(const T& value){
-        Node* z = root_;
-        while (z != nullptr) {
-            if (value == z->getElement()) {
+    void delete_node(const T& value) {
+        Node* nodeToDelete = root_;
+        while (nodeToDelete != nullptr) {
+            if (value == nodeToDelete->getElement()) {
                 break;
-            } else if (value < z->getElement()) {
-                z = z->getLeft();
+            } else if (value < nodeToDelete->getElement()) {
+                nodeToDelete = nodeToDelete->getLeft();
             } else {
-                z = z->getRight();
+                nodeToDelete = nodeToDelete->getRight();
             }
         }
-
-        if (z == nullptr) return;
-        deleteNode(z);
+    
+        if (nodeToDelete == nullptr) return;
+        deleteNode(nodeToDelete);
         size_--;
-    }
+    }    
 
-    void add_node(const T& data){
-        Node* z = new Node(data);
-        Node* y = nullptr;
-        Node* x = root_;
-
-        while (x != nullptr) {
-            y = x;
-            if (z->getElement() < x->getElement()) {
-                x = x->getLeft();
+    void add_node(const T& value) {
+        Node* newNode = new Node(value);
+        Node* parentNode = nullptr;
+        Node* currentNode = root_;
+    
+        while (currentNode != nullptr) {
+            parentNode = currentNode;
+            if (newNode->getElement() < currentNode->getElement()) {
+                currentNode = currentNode->getLeft();
             } else {
-                x = x->getRight();
+                currentNode = currentNode->getRight();
             }
         }
-
-        z->setParent(y);
-        if (y == nullptr) {
-            root_ = z;
-        } else if (z->getElement() < y->getElement()) {
-            y->setLeft(z);
+    
+        newNode->setParent(parentNode);
+        if (parentNode == nullptr) {
+            root_ = newNode;
+        } else if (newNode->getElement() < parentNode->getElement()) {
+            parentNode->setLeft(newNode);
         } else {
-            y->setRight(z);
+            parentNode->setRight(newNode);
         }
-
-        fixInsert(z);
+    
+        fixInsert(newNode);
         size_++;
     }
+    
 
 public:
     RBT() { root_ = nullptr; size_ = 0; }
