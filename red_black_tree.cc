@@ -249,7 +249,17 @@ private:
         }
     }
 
+    void inorder(Node* node) const {
+        assert(root_ != nullptr);
+        if (node != nullptr) {
+            inorder(node->getLeft());
+            cout << node->getElement() << " ";
+            inorder(node->getRight());
+        }
+    }
+
     void preorder(Node* node) const {
+        assert(root_ != nullptr);
         if (node != nullptr) {
             cout << node->getElement() << " ";
             preorder(node->getLeft());
@@ -258,6 +268,7 @@ private:
     }
 
     void postorder(Node* node) const {
+        assert(root_ != nullptr);
         if (node != nullptr) {
             postorder(node->getLeft());
             postorder(node->getRight());
@@ -265,18 +276,30 @@ private:
         }
     }
 
-public:
-    RBT() { root_ = nullptr; size_ = 0; }
-
-    RBT(const T& element) {
-        root_ = new Node(element);
-        root_->setColor(0);
-        size_ = 1;
+    bool find(Node* node, const T& element) {
+        if (!node) return false;
+        if (element == node->getElement()) return true;
+        return element < node->getElement() ? find(node->getLeft(), element) : find(node->getRight(), element);
     }
 
-    Node* root() const { return root_; }
+    void delete_node(const T& value){
+        Node* z = root_;
+        while (z != nullptr) {
+            if (value == z->getElement()) {
+                break;
+            } else if (value < z->getElement()) {
+                z = z->getLeft();
+            } else {
+                z = z->getRight();
+            }
+        }
 
-    void insert(const T& data) {
+        if (z == nullptr) return;
+        deleteNode(z);
+        size_--;
+    }
+
+    void add_node(const T& data){
         Node* z = new Node(data);
         Node* y = nullptr;
         Node* x = root_;
@@ -303,47 +326,32 @@ public:
         size_++;
     }
 
-    bool find(const T& value) const {
-        Node* current = root_;
-        while (current != nullptr) {
-            if (value == current->getElement()) {
-                return true;
-            } else if (value < current->getElement()) {
-                current = current->getLeft();
-            } else {
-                current = current->getRight();
-            }
-        }
-        return false;
+public:
+    RBT() { root_ = nullptr; size_ = 0; }
+
+    RBT(const T& element) {
+        root_ = new Node(element);
+        root_->setColor(0);
+        size_ = 1;
+    }
+
+    Node* root() const { return root_; }
+
+    void insert(const T& data) {
+        if (find(data)) return; // If the element exists, don't add it
+        add_node(data);
+    }
+
+    bool find(const T& value) {
+        return find(root_, value);
     }
 
     void remove(const T& value) {
-        Node* z = root_;
-        while (z != nullptr) {
-            if (value == z->getElement()) {
-                break;
-            } else if (value < z->getElement()) {
-                z = z->getLeft();
-            } else {
-                z = z->getRight();
-            }
-        }
-
-        if (z == nullptr) return;
-        deleteNode(z);
-        size_--;
-    }
-
-    void inorder(Node* node) const {
-        if (node != nullptr) {
-            inorder(node->getLeft());
-            cout << node->getElement() << " ";
-            inorder(node->getRight());
-        }
+        assert(find(value)); // If the element exists, remove it
+        delete_node(value);
     }
 
     void inorder() const { inorder(root_); }
-
     void preorder() const { preorder(root_); }
     void postorder() const { postorder(root_); }
 

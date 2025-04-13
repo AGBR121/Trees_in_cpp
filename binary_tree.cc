@@ -86,15 +86,9 @@ class BST {
 
     //Return true or false if the element is in the tree
     bool find(Node* node, const T& element) {
-        if (node == nullptr){return false;}
-
-        if (element == node->getElement()){ return true; }
-        else if (element < node->getElement()) {
-            return find(node->getLeft(), element);
-        }
-        else {
-            return find(node->getRight(), element);
-        } 
+        if (!node) return false;
+        if (element == node->getElement()) return true;
+        return element < node->getElement() ? find(node->getLeft(), element) : find(node->getRight(), element); 
     }
 
     //Find the smallest element in the tree
