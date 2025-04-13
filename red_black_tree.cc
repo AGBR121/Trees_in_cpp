@@ -366,8 +366,6 @@ public:
     void postorder() const { postorder(root_); }
 
     unsigned int size() const { return size_; }
-
-    Node* root() const { return root_; }
 };
 
 void testRBT() {
