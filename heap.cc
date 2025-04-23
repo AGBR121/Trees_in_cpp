@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cassert>
 #include <stdexcept>
 
 using namespace std;
@@ -42,7 +43,7 @@ class MaxHeap {
         }
     
         int extractMax() {
-            if (data.empty()) throw runtime_error("MaxHeap vacío");
+            assert(!data.empty());
             int root = data[0];
             data[0] = data.back();
             data.pop_back();
@@ -51,7 +52,7 @@ class MaxHeap {
         }
     
         int getMax() const {
-            if (data.empty()) throw runtime_error("MaxHeap vacío");
+            assert(!data.empty());
             return data[0];
         }
     
