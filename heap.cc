@@ -104,7 +104,7 @@ class MaxHeap {
             }
         
             int extractMin() {
-                if (data.empty()) throw runtime_error("MinHeap vacío");
+                assert(!data.empty());
                 int root = data[0];
                 data[0] = data.back();
                 data.pop_back();
@@ -113,7 +113,7 @@ class MaxHeap {
             }
         
             int getMin() const {
-                if (data.empty()) throw runtime_error("MinHeap vacío");
+                assert(!data.empty());
                 return data[0];
             }
         
